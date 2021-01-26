@@ -55,7 +55,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\Player.cs" />
+     <Compile Include="Assets\Scripts\Bullet.cs" />
+     <Compile Include="Assets\Scripts\Meteor.cs" />
      <Compile Include="Assets\Scripts\Player.cs" />
  <Reference Include="UnityEngine">
  <HintPath>F:/Games/Unity3D/2019.4.18f1/Editor/Data/Managed/UnityEngine/UnityEngine.dll</HintPath>

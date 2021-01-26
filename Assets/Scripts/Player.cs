@@ -6,6 +6,7 @@ public class Player : MonoBehaviour
 {
     public Rigidbody2D rigidbody;
     public GameObject  bullet;
+    public GameObject  bulletRespawn;
     public float       impulseSpeedMultipier = 1f;
     public float       rotateAngleMultipier  = 1f;
     public float       bulletForce           = 1f;
@@ -35,13 +36,18 @@ public class Player : MonoBehaviour
         if ( Mathf.Abs( impulseInput ) > 0.1f ) { rigidbody.AddRelativeForce(Vector2.up * impulseInput * impulseSpeedMultipier); }
         if ( Mathf.Abs( rotateInput )  > 0.1f ) { rigidbody.AddTorque(-rotateInput * rotateAngleMultipier); }
 
+        if ( Mathf.Abs( transform.position.x - mouseInput.x) > 0.01f ||
+             Mathf.Abs( transform.position.y - mouseInput.y) > 0.01f ) { transform.rotation = rotateShip(transform.position, mouseInput); }
+
         transform.position = checkOutOfScreenBounds(transform.position);
     }
 
     private void createNewBullet() {
-        GameObject newBullet = Instantiate( bullet, transform.position, transform.rotation );
+        GameObject newBullet = Instantiate( bullet, bulletRespawn.transform.position, transform.rotation );
         newBullet.GetComponent<Rigidbody2D>().AddRelativeForce( Vector2.up * bulletForce );
         Destroy( newBullet, bulletLifeTime );
+
+        Debug.Log("FIRE!");
     }
 
     private Vector3 checkOutOfScreenBounds(Vector3 position) {
@@ -60,5 +66,13 @@ public class Player : MonoBehaviour
         return position;
     }
 
-    void FixedUpdate() {}
+    private Quaternion rotateShip(Vector3 playerPosition, Vector3 mousePosition) {
+        Quaternion result = Quaternion.identity;
+
+        mousePosition = Camera.main.ScreenToWorldPoint(mousePosition);
+        var angle = Vector2.Angle(Vector2.right, mousePosition - playerPosition);
+        result.eulerAngles = new Vector3(0f, 0f, playerPosition.y < mousePosition.y ? angle - 90 : -angle - 90);
+
+        return result;
+    }
 }
