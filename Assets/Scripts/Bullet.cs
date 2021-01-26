@@ -11,9 +11,8 @@ public class Bullet : MonoBehaviour
     void Update() {}
 
     private void OnCollisionEnter2D(Collision2D other) {
-        if ( other.collider.CompareTag("Target") ) {
+        if ( other.collider.CompareTag("Asteroid") ) {
             Destroy( other.collider.gameObject );
-            Debug.Log("Destroy target");
         }
     }
 }

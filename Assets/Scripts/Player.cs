@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static Constants;
 
 public class Player : MonoBehaviour
 {
@@ -11,16 +12,11 @@ public class Player : MonoBehaviour
     public float       rotateAngleMultipier  = 1f;
     public float       bulletForce           = 1f;
     public float       bulletLifeTime        = 3.0f;
-    public float       screenTopSide         = 10f;
-    public float       screenBottomSide      = -10f;
-    public float       screenRightSide       = 10f;
-    public float       screenLeftSide        = -10f;
 
     private float   impulseInput = 0f;
     private float   rotateInput  = 0f;
     private bool    fireInput    = false;
     private Vector3 mouseInput;
-
 
     // Start is called before the first frame update
     void Start() {}
@@ -51,16 +47,16 @@ public class Player : MonoBehaviour
     }
 
     private Vector3 checkOutOfScreenBounds(Vector3 position) {
-        if ( position.x < screenLeftSide ) {
-            position.x = screenRightSide;
-        } else if ( position.x > screenRightSide ) {
-            position.x = screenLeftSide;
+        if ( position.x < Constants.screenLeftSide ) {
+            position.x = Constants.screenRightSide;
+        } else if ( position.x > Constants.screenRightSide ) {
+            position.x = Constants.screenLeftSide;
         }
 
-        if ( position.y < screenBottomSide ) {
-            position.y = screenTopSide;
-        } else if ( position.y > screenTopSide ) {
-            position.y = screenBottomSide;
+        if ( position.y < Constants.screenBottomSide ) {
+            position.y = Constants.screenTopSide;
+        } else if ( position.y > Constants.screenTopSide ) {
+            position.y = Constants.screenBottomSide;
         }
 
         return position;
