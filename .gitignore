@@ -3,18 +3,6 @@ Temp/
 Obj/
 Build/
 Builds/
-Logs/
-UserSettings/
-
-# MemoryCaptures can get excessive in size.
-# They also could contain extremely sensitive data
-MemoryCaptures/
 
 # Unity3D generated file on crash reports
 sysinfo.txt
-
-# Crashlytics generated file
-crashlytics-build.properties
-
-# Packed Addressables
-Assets/AddressableAssetsData/*/*.bin*
