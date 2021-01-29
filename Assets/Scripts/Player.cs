@@ -5,16 +5,10 @@ using static Constants;
 
 public class Player : MonoBehaviour
 {
-    public Rigidbody2D rigidbody;
     public GameObject  bullet;
-    public GameObject  bulletRespawn;
     public float       impulseSpeedMultipier = 1f;
-    public float       rotateAngleMultipier  = 1f;
-    public float       bulletForce           = 1f;
-    public float       bulletLifeTime        = 3.0f;
 
     private float   impulseInput = 0f;
-    private float   rotateInput  = 0f;
     private bool    fireInput    = false;
     private Vector3 mouseInput;
 
@@ -23,43 +17,19 @@ public class Player : MonoBehaviour
 
     // Update is called once per frame
     void Update() {
+        Rigidbody2D rigidbody = GetComponent<Rigidbody2D>();
+
         impulseInput = Input.GetAxis("Vertical");
-        rotateInput  = Input.GetAxis("Horizontal");
         fireInput    = Input.GetButtonDown("Fire1");
         mouseInput   = Input.mousePosition;
 
-        if ( fireInput )                        { createNewBullet(); }
+        if ( fireInput )                        { GameObject.Find("eventSystem").GetComponent<Events>().createNewBullet(); }
         if ( Mathf.Abs( impulseInput ) > 0.1f ) { rigidbody.AddRelativeForce(Vector2.up * impulseInput * impulseSpeedMultipier); }
-        if ( Mathf.Abs( rotateInput )  > 0.1f ) { rigidbody.AddTorque(-rotateInput * rotateAngleMultipier); }
 
         if ( Mathf.Abs( transform.position.x - mouseInput.x) > 0.01f ||
              Mathf.Abs( transform.position.y - mouseInput.y) > 0.01f ) { transform.rotation = rotateShip(transform.position, mouseInput); }
 
-        transform.position = checkOutOfScreenBounds(transform.position);
-    }
-
-    private void createNewBullet() {
-        GameObject newBullet = Instantiate( bullet, bulletRespawn.transform.position, transform.rotation );
-        newBullet.GetComponent<Rigidbody2D>().AddRelativeForce( Vector2.up * bulletForce );
-        Destroy( newBullet, bulletLifeTime );
-
-        Debug.Log("FIRE!");
-    }
-
-    private Vector3 checkOutOfScreenBounds(Vector3 position) {
-        if ( position.x < Constants.screenLeftSide ) {
-            position.x = Constants.screenRightSide;
-        } else if ( position.x > Constants.screenRightSide ) {
-            position.x = Constants.screenLeftSide;
-        }
-
-        if ( position.y < Constants.screenBottomSide ) {
-            position.y = Constants.screenTopSide;
-        } else if ( position.y > Constants.screenTopSide ) {
-            position.y = Constants.screenBottomSide;
-        }
-
-        return position;
+        transform.position = GameObject.Find("eventSystem").GetComponent<Events>().checkScreenBounds( transform.position );
     }
 
     private Quaternion rotateShip(Vector3 playerPosition, Vector3 mousePosition) {
