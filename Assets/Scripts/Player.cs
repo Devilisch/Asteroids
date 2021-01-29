@@ -29,7 +29,7 @@ public class Player : MonoBehaviour
         if ( Mathf.Abs( transform.position.x - mouseInput.x) > 0.01f ||
              Mathf.Abs( transform.position.y - mouseInput.y) > 0.01f ) { transform.rotation = rotateShip(transform.position, mouseInput); }
 
-        transform.position = GameObject.Find("eventSystem").GetComponent<Events>().checkScreenBounds( transform.position );
+        this.transform.position = GameObject.Find("eventSystem").GetComponent<Events>().checkScreenBounds( transform.position );
     }
 
     private Quaternion rotateShip(Vector3 playerPosition, Vector3 mousePosition) {
@@ -40,5 +40,11 @@ public class Player : MonoBehaviour
         result.eulerAngles = new Vector3(0f, 0f, playerPosition.y < mousePosition.y ? angle - 90 : -angle - 90);
 
         return result;
+    }
+
+    public void OnRespawn() {
+        this.transform.position = Vector3.zero;
+        this.GetComponent<Rigidbody2D>().velocity = Vector2.zero;
+        GameObject.Find("eventSystem").GetComponent<Events>().incrementDeathCounter();
     }
 }

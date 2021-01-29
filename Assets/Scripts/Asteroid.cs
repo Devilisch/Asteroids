@@ -19,15 +19,21 @@ public class Asteroid : MonoBehaviour
     }
 
     private void OnCollisionEnter2D( Collision2D other ) {
-        if ( other.collider.CompareTag( "Bullet" ) || other.collider.CompareTag( "Player" ) ) {
+        if ( other.collider.CompareTag( "Bullet" ) ) {
             Destroy( other.collider.gameObject );
+        } else if ( other.collider.CompareTag( "Player" ) ) {
+            other.collider.gameObject.GetComponent<Player>().OnRespawn();
         }
     }
 
     private void OnDestroy() {
+        GameObject currentObject = this.gameObject;
+
+        GameObject.Find("eventSystem").GetComponent<Events>().addPointsForAsteroid( currentObject.GetComponent<Asteroid>().state, false );
+
         if ( state < MAX_ASTEROID_STATES - 1 ) {
             for ( int i = 0; i < Random.Range( 0f, MAX_ASTEROID_CHUNKS); i++ ) {
-                GameObject.Find("eventSystem").GetComponent<Events>().createAsteroidFragment( this.gameObject, Vector3.left * 0.7f + Vector3.right * 1.4f );
+                GameObject.Find("eventSystem").GetComponent<Events>().createAsteroidFragment( currentObject, Vector3.left * 0.7f + Vector3.right * 1.4f );
             }
         }
     }
