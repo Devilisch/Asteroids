@@ -136,7 +136,7 @@ GameObject:
   - component: {fileID: 200965617}
   m_Layer: 0
   m_Name: asteroid
-  m_TagString: Target
+  m_TagString: Asteroid
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -294,8 +294,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3bf63b6b1f514de4881a09d998157f44, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  nextStage: {fileID: 0}
-  rigidbody: {fileID: 0}
+  state: 0
 --- !u!50 &200965618
 Rigidbody2D:
   serializedVersion: 4
@@ -563,6 +562,50 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2b6a28b6dab8baa4fbd824e495eeae0e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &1741458110
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1741458112}
+  - component: {fileID: 1741458111}
+  m_Layer: 0
+  m_Name: eventSystem
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1741458111
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1741458110}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4cf6f3c6dd4078c43bd142303f8a40c0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  newAsteroidCooldown: 5
+--- !u!4 &1741458112
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1741458110}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -4.8124866, y: 1.2121599, z: -0.5546256}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 5
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1741895080
 GameObject:
   m_ObjectHideFlags: 0
@@ -578,7 +621,7 @@ GameObject:
   - component: {fileID: 1741895085}
   m_Layer: 0
   m_Name: player
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -595,13 +638,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0923e7b7c0f44cf4181e3d6352c72850, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rigidbody: {fileID: 1741895082}
   bullet: {fileID: 1183181020}
-  bulletRespawn: {fileID: 770185773}
   impulseSpeedMultipier: 1.5
-  rotateAngleMultipier: 0.25
-  bulletForce: 1000
-  bulletLifeTime: 0.5
 --- !u!50 &1741895082
 Rigidbody2D:
   serializedVersion: 4
