@@ -4,28 +4,41 @@ using UnityEngine;
 using UnityEngine.UI;
 using static Constants;
 using static Asteroid;
+using static UFO;
 
 public class Events : MonoBehaviour
 {
     // public  GameObject asteroid;
-    public  float newAsteroidCooldown = 5f;
-    private float newAsteroidTimer    = 0f;
-    private int   score               = 0;
-    private int   asteroids           = 0;
-    private int   deaths              = 0;
+    private float newAsteroidTimer = 0f;
+    private float newUFOTimer      = UFO_RESPAWN_COOLDOWN;
+    private int   score            = 0;
+    private int   asteroids        = 0;
+    private int   UFOs             = 0;
+    private int   lives           = PLAYER_LIVES;
 
     // Start is called before the first frame update
     void Start() {}
 
     // Update is called once per frame
     void Update() {
-        if ( newAsteroidTimer > 0f ) {
+        if ( newAsteroidTimer > 0f && asteroids > 0 ) {
             newAsteroidTimer -= Time.deltaTime;
-            // Debug.Log( "Time to spawn: " + newAsteroidTimer );
-        } else {
-            newAsteroidTimer += newAsteroidCooldown;
+
+            Debug.Log( "Time to spawn asteroid: " + newAsteroidTimer );
+        } else if ( asteroids < MAX_ASTEROIDS_ON_SCREEN ) {
+            newAsteroidTimer = ASTEROID_RESPAWN_COOLDOWN;
 
             createRandomAsteroid();
+        }
+
+        if ( newUFOTimer > 0f ) {
+            newUFOTimer -= Time.deltaTime;
+
+            Debug.Log( "Time to spawn UFO: " + newUFOTimer );
+        } else {
+            newUFOTimer = UFO_RESPAWN_COOLDOWN;
+
+            createRandomUFO();
         }
     }
 
@@ -45,7 +58,7 @@ public class Events : MonoBehaviour
         return position;
     }
 
-    public void createNewBullet() {
+    public void createBullet() {
         GameObject bullet  = new GameObject();
 
         bullet.name = "bullet";
@@ -69,7 +82,7 @@ public class Events : MonoBehaviour
         Destroy( bullet, BULLET_LIFE_TIME );
     }
 
-    public void createNewAsteroid( int state, Vector3 startPosition, Quaternion startRotation) {
+    public void createAsteroid( int state, Vector3 startPosition, Quaternion startRotation) {
         GameObject asteroid  = new GameObject();
         incrementAsteroidCounter();
 
@@ -99,8 +112,33 @@ public class Events : MonoBehaviour
         rigidbody.AddRelativeForce( new Vector2( Random.Range( -100.0f, 100.0f ), Random.Range( -100.0f, 100.0f ) ) * 50f);
     }
 
+    public void createRandomUFO() {
+        GameObject ufo  = new GameObject();
+        incrementUFOCounter();
+
+        ufo.name = "ufo";
+        ufo.transform.localScale = new Vector3( UFO_SCALE, UFO_SCALE, UFO_SCALE );
+        ufo.transform.position = getRandomRespawnPosition();
+        ufo.tag = "UFO";
+
+        ufo.AddComponent<SpriteRenderer>();
+        ufo.AddComponent<Rigidbody2D>();
+        ufo.AddComponent<PolygonCollider2D>();
+        ufo.AddComponent<UFO>();
+
+        Rigidbody2D rigidbody = ufo.GetComponent<Rigidbody2D>();
+        SpriteRenderer spriteRenderer = ufo.GetComponent<SpriteRenderer>();
+
+        rigidbody.mass         = UFO_MASS;
+        rigidbody.gravityScale = 0;
+
+        spriteRenderer.sprite = Resources.Load<Sprite>("Textures/ufo");
+
+        rigidbody.AddRelativeForce( new Vector2( Random.Range( -100.0f, 100.0f ), Random.Range( -100.0f, 100.0f ) ) * 50f);
+    }
+
     public void createRandomAsteroid() {
-        createNewAsteroid( 0, getRandomRespawnPosition(), getRandomRespawnRotation() );
+        createAsteroid( 0, getRandomRespawnPosition(), getRandomRespawnRotation() );
     }
 
     public void createAsteroidFragment( GameObject prevAsteroid, Vector3 positionOffset ) {
@@ -108,7 +146,7 @@ public class Events : MonoBehaviour
         var startRotation = prevAsteroid.transform.rotation;
         var state         = prevAsteroid.GetComponent<Asteroid>().state + 1;
 
-        createNewAsteroid(state, startPosition, startRotation);
+        createAsteroid(state, startPosition, startRotation);
     }
 
     public Vector3 getRandomRespawnPosition() {
@@ -136,13 +174,12 @@ public class Events : MonoBehaviour
     public void addPointsForAsteroid(int state, bool isObjectKilledInDangerZone) {
         decrementAsteroidCounter();
         score += ( state + 1 ) * ( POINTS_PER_ASTEROID_STATE + (isObjectKilledInDangerZone ? 1 : 0) * DANGER_ZONE_ASTEROID_POINTS );
-        Debug.Log("Score: " + score);
         GameObject.Find("Score").GetComponent<Text>().text = "SCORE: " + score;
     }
 
     public void addPointsForUFO( bool isObjectKilledInDangerZone ) {
+        decrementUFOCounter();
         score += POINTS_PER_UFO + (isObjectKilledInDangerZone ? 1 : 0) * DANGER_ZONE_UFO_POINTS;
-        Debug.Log("Score: " + score);
         GameObject.Find("Score").GetComponent<Text>().text = "SCORE: " + score;
     }
 
@@ -156,8 +193,38 @@ public class Events : MonoBehaviour
         GameObject.Find("Asteroids").GetComponent<Text>().text = "ASTEROIDS: " + asteroids;
     }
 
-    public void incrementDeathCounter() {
-        deaths++;
-        GameObject.Find("Deaths").GetComponent<Text>().text = "DEATHS: " + asteroids;
+    private void incrementUFOCounter() {
+        UFOs++;
+        GameObject.Find("UFOs").GetComponent<Text>().text = "UFOS: " + UFOs;
+    }
+
+    private void decrementUFOCounter() {
+        UFOs--;
+        GameObject.Find("UFOs").GetComponent<Text>().text = "UFOS: " + UFOs;
+    }
+
+    public void decrementLivesCounter() {
+        lives--;
+
+        var livesString = "";
+        for ( int i = 0; i < lives; i++ ) { livesString += LIVE_SYMBOL + " "; }
+
+        GameObject.Find("Lives").GetComponent<Text>().text = "LIVES: " + livesString;
+    }
+
+    private void initLivesCounter() {
+        var livesString = "";
+        for ( int i = 0; i < PLAYER_LIVES; i++ ) { livesString += LIVE_SYMBOL + " "; }
+
+        GameObject.Find("Lives").GetComponent<Text>().text = "LIVES: " + livesString;
+    }
+
+    public int getLivesCounter() {
+        return lives;
+    }
+
+    public void setGameOver() {
+        Destroy( GameObject.Find("player") );
+        GameObject.Find("GAME OVER").GetComponent<Text>().text = "GAME OVER";
     }
 }

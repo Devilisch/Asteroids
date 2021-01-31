@@ -11,7 +11,7 @@ public class Bullet : MonoBehaviour
     void Update() {}
 
     private void OnCollisionEnter2D( Collision2D other ) {
-        if ( other.collider.CompareTag( "Asteroid" ) ) {
+        if ( other.collider.CompareTag( "Asteroid" ) || other.collider.CompareTag( "UFO" ) ) {
             Destroy( other.collider.gameObject );
         }
     }

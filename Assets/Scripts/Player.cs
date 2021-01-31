@@ -5,8 +5,7 @@ using static Constants;
 
 public class Player : MonoBehaviour
 {
-    public GameObject  bullet;
-    public float       impulseSpeedMultipier = 1f;
+    public float impulseSpeedMultipier = 1f;
 
     private float   impulseInput = 0f;
     private bool    fireInput    = false;
@@ -23,13 +22,13 @@ public class Player : MonoBehaviour
         fireInput    = Input.GetButtonDown("Fire1");
         mouseInput   = Input.mousePosition;
 
-        if ( fireInput )                        { GameObject.Find("eventSystem").GetComponent<Events>().createNewBullet(); }
+        if ( fireInput )                        { GameObject.Find("systemObject").GetComponent<Events>().createBullet(); }
         if ( Mathf.Abs( impulseInput ) > 0.1f ) { rigidbody.AddRelativeForce(Vector2.up * impulseInput * impulseSpeedMultipier); }
 
         if ( Mathf.Abs( transform.position.x - mouseInput.x) > 0.01f ||
              Mathf.Abs( transform.position.y - mouseInput.y) > 0.01f ) { transform.rotation = rotateShip(transform.position, mouseInput); }
 
-        this.transform.position = GameObject.Find("eventSystem").GetComponent<Events>().checkScreenBounds( transform.position );
+        this.transform.position = GameObject.Find("systemObject").GetComponent<Events>().checkScreenBounds( transform.position );
     }
 
     private Quaternion rotateShip(Vector3 playerPosition, Vector3 mousePosition) {
@@ -43,8 +42,21 @@ public class Player : MonoBehaviour
     }
 
     public void OnRespawn() {
-        this.transform.position = Vector3.zero;
-        this.GetComponent<Rigidbody2D>().velocity = Vector2.zero;
-        GameObject.Find("eventSystem").GetComponent<Events>().incrementDeathCounter();
+        var events = GameObject.Find("systemObject").GetComponent<Events>();
+
+        events.decrementLivesCounter();
+
+        if ( events.getLivesCounter() > 0 ) {
+            this.transform.position = Vector3.zero;
+            this.GetComponent<Rigidbody2D>().velocity = Vector2.zero;
+        } else {
+            events.setGameOver();
+        }
+    }
+
+    private void OnCollisionEnter2D( Collision2D other ) {
+        if ( other.collider.CompareTag( "Asteroid" ) || other.collider.CompareTag( "UFO" ) ) {
+            Destroy( other.collider.gameObject );
+        }
     }
 }
