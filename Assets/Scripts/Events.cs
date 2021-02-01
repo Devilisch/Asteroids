@@ -5,23 +5,25 @@ using UnityEngine.UI;
 using static Constants;
 using static Asteroid;
 using static UFO;
+using static System.String;
 
 public class Events : MonoBehaviour
 {
     // public  GameObject asteroid;
-    private float newAsteroidTimer = 0f;
-    private float newUFOTimer      = UFO_RESPAWN_COOLDOWN;
-    private int   score            = 0;
-    private int   asteroids        = 0;
-    private int   UFOs             = 0;
-    private int   lives           = PLAYER_LIVES;
+    private float  newAsteroidTimer = 0f;
+    private float  newUFOTimer      = UFO_RESPAWN_COOLDOWN;
+    private int    score            = 0;
+    private int    asteroids        = 0;
+    private int    UFOs             = 0;
+    private int    lives            = PLAYER_LIVES;
+    private string currentTheme     = THEME_90S;
 
     // Start is called before the first frame update
     void Start() {}
 
     // Update is called once per frame
     void Update() {
-        if ( newAsteroidTimer > 0f && asteroids > 0 ) {
+        if ( newAsteroidTimer > 0f && asteroids > MIN_ASTEROIDS_ON_SCREEN ) {
             newAsteroidTimer -= Time.deltaTime;
 
             Debug.Log( "Time to spawn asteroid: " + newAsteroidTimer );
@@ -62,7 +64,7 @@ public class Events : MonoBehaviour
         GameObject bullet  = new GameObject();
 
         bullet.name = "bullet";
-        bullet.transform.localScale = new Vector3( BULLET_SCALE, BULLET_SCALE, BULLET_SCALE );
+        bullet.transform.localScale = new Vector3( 0.6f * BULLET_SCALE, 1.2f * BULLET_SCALE, BULLET_SCALE );
         bullet.transform.position = GameObject.Find("bulletRespawn").transform.position;
         bullet.transform.rotation = GameObject.Find("player").transform.rotation;
         bullet.tag = "Bullet";
@@ -71,15 +73,18 @@ public class Events : MonoBehaviour
         bullet.AddComponent<Rigidbody2D>();
         bullet.AddComponent<PolygonCollider2D>();
         bullet.AddComponent<Bullet>();
+        bullet.AddComponent<AudioSource>();
 
         Rigidbody2D rigidbody = bullet.GetComponent<Rigidbody2D>();
         rigidbody.gravityScale = 0;
 
         SpriteRenderer spriteRenderer = bullet.GetComponent<SpriteRenderer>();
-        spriteRenderer.sprite = Resources.Load<Sprite>("Textures/bullet");
+        spriteRenderer.sprite = Resources.Load<Sprite>("Textures/" + currentTheme + "/bullet");
 
         rigidbody.AddRelativeForce( Vector2.up * BULLET_FORCE );
         Destroy( bullet, BULLET_LIFE_TIME );
+
+        GetComponent<AudioSource>().PlayOneShot( Resources.Load<AudioClip>("Sounds/laser"), 0.1f );
     }
 
     public void createAsteroid( int state, Vector3 startPosition, Quaternion startRotation) {
@@ -104,7 +109,7 @@ public class Events : MonoBehaviour
         rigidbody.mass         = ASTEROID_STATE_MASS[state];
         rigidbody.gravityScale = 0;
 
-        spriteRenderer.sprite = Resources.Load<Sprite>("Textures/asteroid");
+        spriteRenderer.sprite = Resources.Load<Sprite>("Textures/" + currentTheme + "/asteroid" + ASTEROID_STATE_NAMES[state]);
 
         asteroidScript.state = state;
 
@@ -125,6 +130,7 @@ public class Events : MonoBehaviour
         ufo.AddComponent<Rigidbody2D>();
         ufo.AddComponent<PolygonCollider2D>();
         ufo.AddComponent<UFO>();
+        ufo.AddComponent<AudioSource>();
 
         Rigidbody2D rigidbody = ufo.GetComponent<Rigidbody2D>();
         SpriteRenderer spriteRenderer = ufo.GetComponent<SpriteRenderer>();
@@ -132,13 +138,17 @@ public class Events : MonoBehaviour
         rigidbody.mass         = UFO_MASS;
         rigidbody.gravityScale = 0;
 
-        spriteRenderer.sprite = Resources.Load<Sprite>("Textures/ufo");
+        spriteRenderer.sprite = Resources.Load<Sprite>("Textures/" + currentTheme + "/ufo");
 
-        rigidbody.AddRelativeForce( new Vector2( Random.Range( -100.0f, 100.0f ), Random.Range( -100.0f, 100.0f ) ) * 50f);
+        rigidbody.AddRelativeForce( getForceVector( ufo.transform.position ) * 3000f);
+    }
+
+    private Vector2 getForceVector(Vector2 position) {
+        return new Vector2( -1 * Mathf.Sign( position.x ), -1 * Mathf.Sign( position.y ) );
     }
 
     public void createRandomAsteroid() {
-        createAsteroid( 0, getRandomRespawnPosition(), getRandomRespawnRotation() );
+        createAsteroid( (int)Random.Range( 0f, (float)MAX_ASTEROID_STATES - 0.00000001f ), getRandomRespawnPosition(), getRandomRespawnRotation() );
     }
 
     public void createAsteroidFragment( GameObject prevAsteroid, Vector3 positionOffset ) {
@@ -174,49 +184,49 @@ public class Events : MonoBehaviour
     public void addPointsForAsteroid(int state, bool isObjectKilledInDangerZone) {
         decrementAsteroidCounter();
         score += ( state + 1 ) * ( POINTS_PER_ASTEROID_STATE + (isObjectKilledInDangerZone ? 1 : 0) * DANGER_ZONE_ASTEROID_POINTS );
-        GameObject.Find("Score").GetComponent<Text>().text = "SCORE: " + score;
+        GameObject.Find("Score").GetComponent<Text>().text = score.ToString();
     }
 
     public void addPointsForUFO( bool isObjectKilledInDangerZone ) {
         decrementUFOCounter();
         score += POINTS_PER_UFO + (isObjectKilledInDangerZone ? 1 : 0) * DANGER_ZONE_UFO_POINTS;
-        GameObject.Find("Score").GetComponent<Text>().text = "SCORE: " + score;
+        GameObject.Find("Score").GetComponent<Text>().text = score.ToString();
     }
 
     private void incrementAsteroidCounter() {
         asteroids++;
-        GameObject.Find("Asteroids").GetComponent<Text>().text = "ASTEROIDS: " + asteroids;
+        GameObject.Find("Asteroids").GetComponent<Text>().text = "AST:" + asteroids;
     }
 
     private void decrementAsteroidCounter() {
         asteroids--;
-        GameObject.Find("Asteroids").GetComponent<Text>().text = "ASTEROIDS: " + asteroids;
+        GameObject.Find("Asteroids").GetComponent<Text>().text = "AST:" + asteroids;
     }
 
     private void incrementUFOCounter() {
         UFOs++;
-        GameObject.Find("UFOs").GetComponent<Text>().text = "UFOS: " + UFOs;
+        GameObject.Find("UFOs").GetComponent<Text>().text = "UFO: " + UFOs;
     }
 
     private void decrementUFOCounter() {
         UFOs--;
-        GameObject.Find("UFOs").GetComponent<Text>().text = "UFOS: " + UFOs;
+        GameObject.Find("UFOs").GetComponent<Text>().text = "UFO:" + UFOs;
     }
 
     public void decrementLivesCounter() {
         lives--;
 
         var livesString = "";
-        for ( int i = 0; i < lives; i++ ) { livesString += LIVE_SYMBOL + " "; }
+        for ( int i = 0; i < lives; i++ ) { livesString += LIVE_SYMBOL; }
 
-        GameObject.Find("Lives").GetComponent<Text>().text = "LIVES: " + livesString;
+        GameObject.Find("Lives").GetComponent<Text>().text = livesString;
     }
 
     private void initLivesCounter() {
         var livesString = "";
-        for ( int i = 0; i < PLAYER_LIVES; i++ ) { livesString += LIVE_SYMBOL + " "; }
+        for ( int i = 0; i < PLAYER_LIVES; i++ ) { livesString += LIVE_SYMBOL; }
 
-        GameObject.Find("Lives").GetComponent<Text>().text = "LIVES: " + livesString;
+        GameObject.Find("Lives").GetComponent<Text>().text = livesString;
     }
 
     public int getLivesCounter() {

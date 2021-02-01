@@ -6,7 +6,9 @@ using static Constants;
 public class UFO : MonoBehaviour
 {
     // Start is called before the first frame update
-    void Start() {}
+    void Start() {
+        GetComponent<AudioSource>().PlayOneShot( Resources.Load<AudioClip>("Sounds/ufo"), 0.05f );
+    }
 
     // Update is called once per frame
     void Update() {
