@@ -39,4 +39,9 @@
 
     // theme names
     public const  string   THEME_90S                   = "90s_theme";
+
+    // other
+    public const  string   HIGHSCORE_PATH              = "Assets/Resources/Highscore.txt";
+    public const  string   MAIN_SCENE                  = "MainScene";
+    public const  string   MENU_SCENE                  = "MenuScene";
 }

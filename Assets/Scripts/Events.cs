@@ -1,7 +1,10 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System;
+using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 using static Constants;
 using static Asteroid;
 using static UFO;
@@ -19,7 +22,9 @@ public class Events : MonoBehaviour
     private string currentTheme     = THEME_90S;
 
     // Start is called before the first frame update
-    void Start() {}
+    void Start() {
+        GameObject.Find("MAIN MENU").GetComponent<RectTransform>().localScale = Vector3.zero;
+    }
 
     // Update is called once per frame
     void Update() {
@@ -71,7 +76,6 @@ public class Events : MonoBehaviour
 
         bullet.AddComponent<SpriteRenderer>();
         bullet.AddComponent<Rigidbody2D>();
-        bullet.AddComponent<PolygonCollider2D>();
         bullet.AddComponent<Bullet>();
         bullet.AddComponent<AudioSource>();
 
@@ -80,6 +84,8 @@ public class Events : MonoBehaviour
 
         SpriteRenderer spriteRenderer = bullet.GetComponent<SpriteRenderer>();
         spriteRenderer.sprite = Resources.Load<Sprite>("Textures/" + currentTheme + "/bullet");
+
+        bullet.AddComponent<PolygonCollider2D>();
 
         rigidbody.AddRelativeForce( Vector2.up * BULLET_FORCE );
         Destroy( bullet, BULLET_LIFE_TIME );
@@ -99,7 +105,6 @@ public class Events : MonoBehaviour
 
         asteroid.AddComponent<SpriteRenderer>();
         asteroid.AddComponent<Rigidbody2D>();
-        asteroid.AddComponent<PolygonCollider2D>();
         asteroid.AddComponent<Asteroid>();
 
         Rigidbody2D rigidbody = asteroid.GetComponent<Rigidbody2D>();
@@ -111,10 +116,12 @@ public class Events : MonoBehaviour
 
         spriteRenderer.sprite = Resources.Load<Sprite>("Textures/" + currentTheme + "/asteroid" + ASTEROID_STATE_NAMES[state]);
 
+        asteroid.AddComponent<PolygonCollider2D>();
+
         asteroidScript.state = state;
 
-        rigidbody.AddTorque( Random.Range( -1000.0f, 1000.0f ) );
-        rigidbody.AddRelativeForce( new Vector2( Random.Range( -100.0f, 100.0f ), Random.Range( -100.0f, 100.0f ) ) * 50f);
+        rigidbody.AddTorque( UnityEngine.Random.Range( -1000.0f, 1000.0f ) );
+        rigidbody.AddRelativeForce( new Vector2( UnityEngine.Random.Range( -100.0f, 100.0f ), UnityEngine.Random.Range( -100.0f, 100.0f ) ) * 50f);
     }
 
     public void createRandomUFO() {
@@ -128,7 +135,6 @@ public class Events : MonoBehaviour
 
         ufo.AddComponent<SpriteRenderer>();
         ufo.AddComponent<Rigidbody2D>();
-        ufo.AddComponent<PolygonCollider2D>();
         ufo.AddComponent<UFO>();
         ufo.AddComponent<AudioSource>();
 
@@ -140,6 +146,8 @@ public class Events : MonoBehaviour
 
         spriteRenderer.sprite = Resources.Load<Sprite>("Textures/" + currentTheme + "/ufo");
 
+        ufo.AddComponent<PolygonCollider2D>();
+
         rigidbody.AddRelativeForce( getForceVector( ufo.transform.position ) * 3000f);
     }
 
@@ -148,7 +156,7 @@ public class Events : MonoBehaviour
     }
 
     public void createRandomAsteroid() {
-        createAsteroid( (int)Random.Range( 0f, (float)MAX_ASTEROID_STATES - 0.00000001f ), getRandomRespawnPosition(), getRandomRespawnRotation() );
+        createAsteroid( (int)UnityEngine.Random.Range( 0f, (float)MAX_ASTEROID_STATES - 0.00000001f ), getRandomRespawnPosition(), getRandomRespawnRotation() );
     }
 
     public void createAsteroidFragment( GameObject prevAsteroid, Vector3 positionOffset ) {
@@ -160,8 +168,8 @@ public class Events : MonoBehaviour
     }
 
     public Vector3 getRandomRespawnPosition() {
-        float x = Random.Range( SCREEN_LEFT_SIDE   - RESPAWN_SPACE, SCREEN_RIGHT_SIDE + RESPAWN_SPACE );
-        float y = Random.Range( SCREEN_BOTTOM_SIDE - RESPAWN_SPACE, SCREEN_TOP_SIDE   + RESPAWN_SPACE );
+        float x = UnityEngine.Random.Range( SCREEN_LEFT_SIDE   - RESPAWN_SPACE, SCREEN_RIGHT_SIDE + RESPAWN_SPACE );
+        float y = UnityEngine.Random.Range( SCREEN_BOTTOM_SIDE - RESPAWN_SPACE, SCREEN_TOP_SIDE   + RESPAWN_SPACE );
 
         if ( x > SCREEN_LEFT_SIDE && x < SCREEN_RIGHT_SIDE && y > SCREEN_BOTTOM_SIDE && y < SCREEN_TOP_SIDE ) {
             if ( x > 0 ) {
@@ -205,7 +213,7 @@ public class Events : MonoBehaviour
 
     private void incrementUFOCounter() {
         UFOs++;
-        GameObject.Find("UFOs").GetComponent<Text>().text = "UFO: " + UFOs;
+        GameObject.Find("UFOs").GetComponent<Text>().text = "UFO:" + UFOs;
     }
 
     private void decrementUFOCounter() {
@@ -236,5 +244,12 @@ public class Events : MonoBehaviour
     public void setGameOver() {
         Destroy( GameObject.Find("player") );
         GameObject.Find("GAME OVER").GetComponent<Text>().text = "GAME OVER";
+        writeScore();
+        GameObject.Find("MAIN MENU").GetComponent<RectTransform>().localScale = Vector3.one;
+    }
+
+    private void writeScore() {
+        int currentHighscore = Convert.ToInt32( File.ReadAllText( HIGHSCORE_PATH ) );
+        if ( currentHighscore < score ) { File.WriteAllText( HIGHSCORE_PATH, score.ToString() ); }
     }
 }
