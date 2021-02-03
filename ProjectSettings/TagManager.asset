@@ -8,6 +8,8 @@ TagManager:
   - Target
   - Asteroid
   - UFO
+  - Immortal
+  - System
   layers:
   - Default
   - TransparentFX
