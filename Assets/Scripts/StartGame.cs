@@ -4,9 +4,8 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using static Constants;
 
-public class StartGame : MonoBehaviour
-{
+public class StartGame : MonoBehaviour {
 	public void startGame() {
-		SceneManager.LoadScene(MAIN_SCENE);
+		SceneManager.LoadScene( MAIN_SCENE );
 	}
 }

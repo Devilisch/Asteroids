@@ -1,21 +1,16 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using static Constants;
 
-public class Asteroid : MonoBehaviour
-{
+public class Asteroid : MonoBehaviour {
     public int state = 0;
-    private Vector3 startPosition;
-    private Quaternion startRotation;
 
-    // Start is called before the first frame update
-    void Start() {
-    }
-
-    // Update is called once per frame
     void Update() {
-        transform.position = GameObject.Find("systemObject").GetComponent<Events>().checkScreenBounds( transform.position );
+        if ( SceneManager.GetActiveScene().name == MAIN_SCENE ) {
+            transform.position = GameObject.Find( "systemObject" ).GetComponent<Events>().checkScreenBounds( transform.position );
+        }
     }
 
     private void OnCollisionEnter2D( Collision2D other ) {
@@ -27,13 +22,21 @@ public class Asteroid : MonoBehaviour
     }
 
     private void OnDestroy() {
-        GameObject currentObject = this.gameObject;
+        if ( !GameObject.Find( "systemObject" ).GetComponent<Events>().isMatchOver ) {
+            GameObject currentObject = this.gameObject;
+            Events     events        = GameObject.Find( "systemObject" ).GetComponent<Events>();
 
-        GameObject.Find("systemObject").GetComponent<Events>().addPointsForAsteroid( currentObject.GetComponent<Asteroid>().state, false );
+            if ( !events.isMatchOver ) {
+                GameObject player = GameObject.Find( "player" );
 
-        if ( state < MAX_ASTEROID_STATES - 1 ) {
-            for ( int i = 0; i < Random.Range( 0f, MAX_ASTEROID_CHUNKS); i++ ) {
-                GameObject.Find("systemObject").GetComponent<Events>().createAsteroidFragment( currentObject, Vector3.left * 0.7f + Vector3.right * 1.4f );
+                events.addPointsForAsteroid( currentObject.GetComponent<Asteroid>().state, events.isAsteroidDestroyedInDangerZone( player.transform.position, currentObject.transform.position ) );
+            }
+
+            if ( state < MAX_ASTEROID_STATES - 1 ) {
+                int asteroidChunks = MIN_ASTEROID_CHUNKS + (int)Mathf.Round( Random.Range( 0f, MAX_ASTEROID_CHUNKS) ) ;
+                for ( int i = 0; i < asteroidChunks; i++ ) {
+                    events.createAsteroidFragment( this.gameObject, Vector3.left * SPACE_BETWEEN_CHUNKS * asteroidChunks / 2 + Vector3.right * SPACE_BETWEEN_CHUNKS * i );
+                }
             }
         }
     }

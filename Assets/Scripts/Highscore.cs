@@ -5,11 +5,9 @@ using UnityEngine;
 using UnityEngine.UI;
 using static Constants;
 
-public class Highscore : MonoBehaviour
-{
-    // Start is called before the first frame update
+public class Highscore : MonoBehaviour {
     void Start() {
-        using (StreamReader streamReader = File.OpenText(HIGHSCORE_PATH)) {
+        using (StreamReader streamReader = File.OpenText( HIGHSCORE_PATH )) {
             string highscore = streamReader.ReadLine();
 
             if ( highscore != null ) {
@@ -17,7 +15,4 @@ public class Highscore : MonoBehaviour
             }
         }
     }
-
-    // Update is called once per frame
-    void Update() {}
 }
