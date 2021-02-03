@@ -42,7 +42,7 @@
     // event parameters
     public const  float    UFO_RESPAWN_COOLDOWN        = 5f;
     public const  float    ASTEROID_RESPAWN_COOLDOWN   = 13f;
-    public const  int      PLAYER_LIVES                = 0;
+    public const  int      PLAYER_LIVES                = 3;
     public const  string   LIVE_SYMBOL                 = "♥";
 
     // theme names
